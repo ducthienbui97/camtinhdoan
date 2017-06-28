@@ -32,7 +32,7 @@ const LeftBubble = styled.div`
 	padding: 10px;
 `
 const Input = styled.input`
-	#!/usr/bin/env padding:5px; 
+	padding:5px; 
     border:2px solid #ccc; 
     -webkit-border-radius: 5px;
     border-radius: 5px;

@@ -1,6 +1,6 @@
 import React from 'react';
 import {render} from 'react-dom';
-import Input from './style.jsx';
+import {Input} from './style.jsx';
 class Main extends React.Component{
 	render(){
 		
@@ -8,7 +8,7 @@ class Main extends React.Component{
 
 			<div> 
 				<form >
-					<input type="text" name="query"></input>
+					<Input type="text" name="query"></Input>
 				</form>
 			</div>
 		);
