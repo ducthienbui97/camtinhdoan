@@ -9,8 +9,8 @@ var assert = require('assert');
 var app = express();
 var cookieParser = require('cookie-parser');
 
-var hostname = "localhost";
-var port = process.env.PORT||8888;
+var hostname = process.env.YOUR_HOST || 'localhost';
+var port = process.env.YOUR_PORT || process.env.PORT || 8888;
 
 var admin_password = "camtinhdoan";
 
