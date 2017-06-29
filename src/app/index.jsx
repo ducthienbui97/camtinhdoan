@@ -1,17 +1,14 @@
 import React from 'react';
 import {render} from 'react-dom';
-import {Input} from './style.jsx';
-class Main extends React.Component{
-	render(){
-		
-		return (
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import Main from './Main.jsx';
+import Search from './Search.jsx';
+render(
+    <BrowserRouter>
+        <Switch>
+            <Route path="/" exact component={Main}/>
+            <Route path="/search" component={Search}/>
+        </Switch>
+    </BrowserRouter>
 
-			<div> 
-				<form >
-					<Input type="text" name="query"></Input>
-				</form>
-			</div>
-		);
-	}
-}
-render(<Main/> , document.getElementById('app'));
+ , document.getElementById('app'));
