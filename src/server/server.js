@@ -12,7 +12,7 @@ var cookieParser = require('cookie-parser');
 var hostname = "localhost";
 var port = 8888;
 
-var admin_password = "camtinhdoan";
+var admin_password = "REDACTED";
 
 var action = require('./action.js');
 
@@ -20,8 +20,8 @@ var extensions = ['.html', '.css', '.js', '.jpg', '.png', '.mp3', '.mp4', '.ico'
 
 var forbid = ['/server.js', '/action.js', '/mysql_queries.txt'];
 
-function check_invalid_input(req,res,next){
-	if(req.url.indexOf('"')>-1 || req.url.indexOf("'")>-1) res.end("Request contains invalid character!");
+function check_invalid_input(req, res, next) {
+	if (req.url.indexOf('"') > -1 || req.url.indexOf("'") > -1) res.end("Request contains invalid character!");
 	else next();
 }
 
@@ -35,33 +35,41 @@ app.use(bodyParser.json()); // if request body has json data,
 
 app.use(cookieParser()); // secret key
 
-function givefile(req,res,fileUrl){
-	var filePath = path.resolve('.'+fileUrl);
+function givefile(req, res, fileUrl) {
+	var filePath = path.resolve('.' + fileUrl);
 	var fileExt = path.extname(filePath);
 
-	fs.exists(filePath, function(exists){
-		if(extensions.indexOf(fileExt)==-1) res.redirect("/");
-		else if(!exists) res.redirect("/");
-		else if(forbid.indexOf(fileUrl)!=-1) res.redirect("/");
+	fs.exists(filePath, function (exists) {
+		if (extensions.indexOf(fileExt) == -1) res.redirect("/");
+		else if (!exists) res.redirect("/");
+		else if (forbid.indexOf(fileUrl) != -1) res.redirect("/");
 		else fs.createReadStream(filePath).pipe(res);
 	});
 }
 
-app.get('/', function(req,res){
-	givefile(req,res,'/index.html');
+app.get('/', function (req, res) {
+	givefile(req, res, '/index.html');
 });
 
-app.post('/ask', function(req,res){
-	action.answer(req.body.question,function(answer){
+app.post('/ask', function (req, res) {
+	action.answer(req.body.question, function (answer) {
 		console.log(req.body.question);
-		res.end('<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n</head>\n<body>\n'+answer+'</body>\n</html>\n');
+		res.end('<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n</head>\n<body>\n' + answer + '</body>\n</html>\n');
 	});
 });
 
-app.get('/*', function(req,res){
-	givefile(req,res,req.url);
+app.get('/*', function (req, res) {
+	givefile(req, res, req.url);
 });
 
-app.listen(port, hostname, function(){
+app.listen(port, hostname, function () {
 	console.log('Server running at http://' + hostname + ':' + port + '/');
 }); // start the server and print the status to the console
+
+var scraper = require('./scraper.js');
+
+app.post('ask1', function (req, res) {
+	scraper.answer(req.body.question, function (answer) {
+		res.end(answer);
+	});
+});
