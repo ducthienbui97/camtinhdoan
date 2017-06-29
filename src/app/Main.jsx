@@ -2,18 +2,32 @@ import React from 'react';
 import queryString from 'query-string';
 import {FieldTextStateless as FieldText} from '@atlaskit/field-text';
 import Button from '@atlaskit/button';
-import {Grid, Row, Col } from 'react-flexbox-grid';
-import {NoneDecorateLink} from './Style.jsx';
+import {Grid, Col} from 'react-flexbox-grid';
+import {NoneDecorateLink,SearchRow} from './Style.jsx';
+import ReactKeymaster from 'react-keymaster';
+
 export default class Main extends React.Component{
     constructor(props){
         super(props);
         this.state = {value:''};
+        this.startSearch = this.startSearch.bind(this);
+    }
+
+    startSearch(){
+        const searchLocation = {
+                                pathname: '/search',
+                                search: queryString.stringify({
+                                    query: this.state.value
+                                    })
+                                }
+        this.props.history.push(searchLocation);
     }
     render(){
         return (
             <Grid fluid>
-                <Row center="xs">
-                    <Col xs={9} md={7} lg={5}>
+                <SearchRow center="xs" middle="xs">
+                    <Col xs={10} md={8}>
+                        <ReactKeymaster keyName="enter" onKeyDown={this.startSearch}/>
                         <FieldText
                             placeholder="Nhập câu hỏi"
                             label="Search query"
@@ -23,16 +37,9 @@ export default class Main extends React.Component{
                         />
                     </Col>
                     <Col xs={2}>
-                        <NoneDecorateLink to={{
-                            pathname: '/search',
-                            search: queryString.stringify({
-                                query: this.state.value
-                                })
-                        }}> 
-                            <Button> Generate </Button>
-                        </NoneDecorateLink>
+                        <Button appearance='primary' onClick = {this.startSearch}> Generate </Button>
                     </Col>
-                </Row>
+                </SearchRow>
             </Grid>
         );
     }
