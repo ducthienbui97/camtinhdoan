@@ -11,7 +11,7 @@ var cookieParser = require('cookie-parser');
 
 var port = process.env.YOUR_PORT || process.env.PORT || 8888;
 
-var admin_password = "camtinhdoan";
+var admin_password = "???";
 
 var action = require('./action.js');
 
@@ -34,7 +34,7 @@ app.use(cookieParser()); // secret key
 app.use(express.static(path.join(__dirname, '../public')))
 
 app.get('*', function(req,res){
-	res.sendFile('../public/index.html',{root: __dirname });
+	res.sendFile('index.html',{root:path.join(__dirname, '../public')});
 });
 
 app.post('/ask', function(req,res){
