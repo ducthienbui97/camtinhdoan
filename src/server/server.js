@@ -10,7 +10,7 @@ var app = express();
 var cookieParser = require('cookie-parser');
 
 var hostname = "localhost";
-var port = 8888;
+var port = process.env.PORT||8888;
 
 var admin_password = "camtinhdoan";
 
