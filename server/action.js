@@ -20,7 +20,7 @@ var assert = require('assert');
 var async = require('async');
 var phantom = require('phantom');
 
-var coccoc_url = "http://coccoc.com/search#query=";
+var coccoc_url = "http://coccoc.com/search#query=%C4%91o%C3%A0n+thanh+ni%C3%AAn";
 var search_depth = 1;
 var accept_website = ['.vn','.gov.vn','.edu.vn'];
 
@@ -111,7 +111,28 @@ function check_valid_line(line){
 			}
 		}
 	}
-	if(vietnamese_words < minimum_words) return false;
+	if(vietnamese_words < minimum_words || 5*vietnamese_words < 4*words.length) return false;
+	// else console.log(vietnamese_words+"///////"+words.length+" : "+line);
+
+	return true;
+}
+
+function check_valid_startend_line(line){
+	var minimum_words = 30;
+
+	var words = line.split(' ');
+	
+	var vietnamese_words = 0;
+	for(var i=0;i<words.length;i++){
+		for(var j=0;j<words[i].length;j++){
+			if(encodeURIComponent(words[i][j]).length>3){
+				vietnamese_words++;
+				break;
+			}
+		}
+	}
+	if(vietnamese_words < minimum_words || 5*vietnamese_words < 4*words.length) return false;
+	// else console.log(vietnamese_words+"///////"+words.length+" : "+line);
 
 	return true;
 }
@@ -129,38 +150,81 @@ function check_valid_tag(word){
 function extract_information(content_page,keyword,callback){
 	var article = "";
 
-	content_page = content_page.split('<');
-	var content = [];
+	var redundant_tag = ['<i>','</i>','<em>','</em>','<strong>','</strong>','<u>','</u>','<b>','</b>'];
+	var new_content_page, content;
+	for(var i=0;i<redundant_tag.length;i++){
+		new_content_page = '';
+		content = content_page.split(redundant_tag[i]);
+		for(var j=0;j<content.length;j++){
+			if(j>0) new_content_page += ' ';
+			new_content_page += content[j];
+		}
+		content_page = new_content_page;
+	}
+
+	content_page = content_page.split('<'); content = [];
 	for(var i=0;i<content_page.length;i++){
 		if(content_page[i].substr(content_page[i].length-1)!='>'){
 			content.push(content_page[i]);
 		}
 	}
+
 	var draft = "";
+	var start_article = false;
 	for(var i=0;i<content.length;i++){
-		if(content[i].split('>').length>1 && check_valid_tag(content[i].split('>')[0]) && 
+		if(content[i].split('>').length>1 && //check_valid_tag(content[i].split('>')[0]) && 
 			check_valid_line(content[i].split('>')[1])){
-			draft += "<p>";
-			draft += content[i].split('>')[1];
-			draft += "</p>\n";
+			if(content[i].split('>')[1].indexOf(keyword)>-1) start_article = true;
+			if(start_article){
+				draft += "<p>";
+				draft += content[i].split('>')[1];
+				draft += "</p>\n";
+			}
+			if(content[i].split('>')[1].indexOf(keyword)>-1 && 
+				check_valid_startend_line(content[i].split('>')[1])){
+				article += draft;
+				draft = "";
+			}
 		}
 		else if(content[i].split('>').length==1 && check_valid_line(content[i])){
-			draft += "<p>";
-			draft += content[i];
-			draft += "</p>\n";
+			if(content[i].indexOf(keyword)>-1) start_article = true;
+			if(start_article){
+				draft += "<p>";
+				draft += content[i];
+				draft += "</p>\n";
+			}
+			if(content[i].indexOf(keyword)>-1 &&
+				check_valid_startend_line(content[i])){
+				article += draft;
+				draft = "";
+			}
 		}
 	}
 
-	callback(draft);
+	var appearance = 0, num_of_words = keyword.split(' ').length, limit = 7;
+	for(var i=0;i<article.length;i++) if(article.substr(i,keyword.length) == keyword) appearance++;
+	if(appearance*num_of_words < limit) callback("");
+	else{
+		appearance = 0;
+		for(var i=0;i<article.length;i++) 
+			if(article.substr(i,'thanh niên'.length) == 'thanh niên' ||
+				article.substr(i,'Đoàn'.length) == 'Đoàn') appearance++;
+		if(appearance < 6) callback("");
+		else callback(article);
+	}
 }
 
-function find_by_keyword(keyword,callback){
+function find_by_keyword(keyword,wlen,callback){
+	// console.log(keyword);
 	var words = keyword.split(' ');
 	var url = coccoc_url;
 	for(var i=0;i<words.length;i++){
-		if(i>0) url += '+';
+		url += '+';
 		for(var j=0;j<words[i].length;j++) url += encodeURIComponent(words[i][j]);
 	}
+	
+	var link_per_page = 2, link_cnt = 0;
+	var optimum_content = "nothing";
 	for(var depth=1;depth<=search_depth;depth++){
 		var new_url = (depth > 1) ? (url+'&page='+depth) : url;
 		get_page(new_url,function(search_page){
@@ -170,27 +234,97 @@ function find_by_keyword(keyword,callback){
 				if(search_page_lines[i].indexOf(search_link_identifier)>-1){
 					var content_link = search_page_lines[i].split('href="')[1].split('"')[0];
 					if(check_accept_website(content_link)){
-						console.log(content_link);
+						// console.log(content_link);
 						get_page(content_link,function(content_page){
 							extract_information(content_page,keyword,function(article){
-								// console.log(article);
-								callback(article);
+								if(article.length > optimum_content.length) optimum_content = article;
+								//
+								link_cnt++;
+								if(link_cnt == link_per_page*search_depth) callback(optimum_content,keyword,wlen);
 							});
 						});
-						break;
+					}
+					else{
+						link_cnt++;
+						if(link_cnt == link_per_page*search_depth) callback(optimum_content,keyword,wlen);
 					}
 				}
 			}
 		});
-		break;
 	}
+}
+
+function remove_common_words(line,callback){
+	var remove_character = ['"',"'",',','.','?','!','(',')','&','-','+',':',';','<','>'];
+	var words, new_line;
+	for(var i=0;i<remove_character.length;i++){
+		words = line.split(remove_character[i]);
+		new_line = '';
+		for(var j=0;j<words.length;j++) new_line += words[j];
+		line = new_line;
+	}
+
+	words = line.split(' '); new_line = '';
+	for(var i=0;i<words.length;i++) 
+		if(words[i]!=''){
+			if(new_line!='') new_line += ' ';
+			new_line += words[i];
+		}
+	line = new_line;
+
+	var remove_words = ['Đoàn','đoàn','ĐOÀN','TNCS','tncs','thanh','niên','Thanh','Niên','THANH','NIÊN',
+						'Hồ','HỒ','hồ','Chí','CHÍ','chí','Minh','MINH','minh'];
+	for(var i=0;i<remove_words.length;i++){
+		words = line.split(' ');
+		new_line = '';
+		for(var j=0;j<words.length;j++)
+			if(words[j]!=remove_words[i]){
+				if(new_line!='') new_line += ' ';
+				new_line += words[j];
+			}
+		line = new_line;
+	}
+
+	callback(line);
 }
 
 exports.answer = function(question,callback){
 	if(question == '') callback('nothing');
 	else{
-		find_by_keyword(question,function(answer_by_keyword){
-			callback(answer_by_keyword);
+		remove_common_words(question,function(new_question){
+			console.log(new_question);
+			var words = new_question.split(' ');
+			var result = [], word_len = -1;
+			var cnt = 0, optimum_content = "nothing";
+			for(var i=0;i<words.length;i++){
+				var sub_question = "";
+				for(var j=i;j<words.length;j++){
+					if(j>i) sub_question += ' ';
+					sub_question += words[j];
+					if(j>i){
+						find_by_keyword(sub_question,j-i+1,function(answer_by_keyword,sub_ques,wlen){
+							console.log('******    '+sub_ques+'    ******');
+							// if((wlen>word_len && answer_by_keyword!="nothing") || 
+							// 	(wlen==word_len && optimum_content.length < answer_by_keyword.length)){
+							if(word_len*optimum_content.length < wlen*answer_by_keyword.length){
+								optimum_content = answer_by_keyword;
+								word_len = wlen;
+							}
+							if(answer_by_keyword != "nothing"){
+								result.push(answer_by_keyword);
+								console.log(answer_by_keyword);
+								console.log('++++++    '+sub_ques+'    ++++++');
+							}
+
+							cnt++;
+							if(cnt*2 == words.length*(words.length-1)){
+								console.log("result = "+result.length);
+								callback(optimum_content);
+							}
+						});
+					}
+				}
+			}
 		});
 	}
 }
