@@ -34,7 +34,7 @@ app.use(cookieParser()); // secret key
 app.use(express.static(path.join(__dirname, '../public')))
 
 app.get('*', function(req,res){
-	res.sendFile(path.join(__dirname, '../public', 'index.html'));
+	res.sendFile('../public/index.html',{root: __dirname });
 });
 
 app.post('/ask', function(req,res){
