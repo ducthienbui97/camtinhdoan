@@ -1,7 +1,7 @@
 import Style from 'styled-components'
+import styled from 'styled-components'
 import {Link} from 'react-router-dom';
 import {Row} from 'react-flexbox-grid';
-
 const NoneDecorateLink = Style(Link)`
     text-decoration: none;
 `
@@ -32,4 +32,9 @@ const SearchRow = Style(Row)`
       border:1em;
     }
 `
-export {NoneDecorateLink,SearchRow}
+const ADiv = styled.div`
+	background-color: rgba(155,155,155,0.5);
+
+    border-radius: 5px;
+`
+export {NoneDecorateLink,SearchRow,ADiv}
