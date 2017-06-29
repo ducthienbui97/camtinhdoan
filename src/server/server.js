@@ -31,10 +31,10 @@ app.use(bodyParser.json()); // if request body has json data,
 // then convert it to a simpler form to use in javascript
 
 app.use(cookieParser()); // secret key
-app.use(express.static(path.join(__dirname, '../public')))
+app.use(express.static('./src/public'));
 
 app.get('*', function(req,res){
-	res.sendFile('index.html',{root:path.join(__dirname, '../public')});
+	res.sendFile('index.html',{root:'./src/public'});
 });
 
 app.post('/ask', function(req,res){

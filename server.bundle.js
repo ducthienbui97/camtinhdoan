@@ -336,7 +336,7 @@ module.exports = require("utils");
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(__dirname) {
+
 
 var http = __webpack_require__(5);
 var fs = __webpack_require__(4);
@@ -351,7 +351,7 @@ var cookieParser = __webpack_require__(10);
 
 var port = process.env.YOUR_PORT || process.env.PORT || 8888;
 
-var admin_password = "camtinhdoan";
+var admin_password = "???";
 
 var action = __webpack_require__(8);
 
@@ -370,10 +370,10 @@ app.use(bodyParser.json()); // if request body has json data,
 // then convert it to a simpler form to use in javascript
 
 app.use(cookieParser()); // secret key
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static('./src/public'));
 
 app.get('*', function (req, res) {
-	res.sendFile('../public/index.html', { root: __dirname });
+	res.sendFile('index.html', { root: './src/public' });
 });
 
 app.post('/ask', function (req, res) {
@@ -443,7 +443,6 @@ app.get('/ask1', function (req, res) {
 app.listen(port, function () {
 	console.log('Server running at port ' + port);
 }); // start the server and print the status to the console
-/* WEBPACK VAR INJECTION */}.call(exports, "src\\server"))
 
 /***/ }),
 /* 13 */
