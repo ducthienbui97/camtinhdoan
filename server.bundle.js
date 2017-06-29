@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -140,8 +140,8 @@ var bodyParser = __webpack_require__(2);
 var exec = __webpack_require__(0).exec;
 var execFile = __webpack_require__(0).execFile;
 var assert = __webpack_require__(1);
-var async = __webpack_require__(11);
-var phantom = __webpack_require__(12);
+var async = __webpack_require__(13);
+var phantom = __webpack_require__(14);
 
 var coccoc_url = "http://coccoc.com/search#query=";
 var search_depth = 1;
@@ -317,10 +317,22 @@ exports.answer = function (question, callback) {
 /* 9 */
 /***/ (function(module, exports) {
 
-module.exports = require("cookie-parser");
+module.exports = require("casper");
 
 /***/ }),
 /* 10 */
+/***/ (function(module, exports) {
+
+module.exports = require("cookie-parser");
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+module.exports = require("utils");
+
+/***/ }),
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -335,7 +347,7 @@ var bodyParser = __webpack_require__(2);
 var exec = __webpack_require__(0).exec;
 var assert = __webpack_require__(1);
 var app = express();
-var cookieParser = __webpack_require__(9);
+var cookieParser = __webpack_require__(10);
 
 var port = process.env.YOUR_PORT || process.env.PORT || 8888;
 
@@ -374,7 +386,7 @@ app.post('/ask', function (req, res) {
 
 app.get('/ask1', function (req, res) {
 	var Scraper = function Scraper(url) {
-		var casper = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"casper\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())).create();
+		var casper = __webpack_require__(9).create();
 		var currentPage = 1;
 		var links = [];
 
@@ -403,7 +415,7 @@ app.get('/ask1', function (req, res) {
 
 		var processPage = function processPage() {
 			links = this.evaluate(getLinks);
-			__webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"utils\""); e.code = 'MODULE_NOT_FOUND'; throw e; }())).dump(links);
+			__webpack_require__(11).dump(links);
 
 			if (currentPage >= 5 || !this.exists('h3 a')) {
 				return terminate.call(casper);
@@ -433,13 +445,13 @@ app.listen(port, function () {
 }); // start the server and print the status to the console
 
 /***/ }),
-/* 11 */
+/* 13 */
 /***/ (function(module, exports) {
 
 module.exports = require("async");
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports) {
 
 module.exports = require("phantom");
