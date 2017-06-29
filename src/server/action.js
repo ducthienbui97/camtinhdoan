@@ -22,7 +22,7 @@ var phantom = require('phantom');
 
 var coccoc_url = "http://coccoc.com/search#query=";
 var search_depth = 1;
-var accept_website = ['.gov.vn','.edu.vn'];
+var accept_website = ['.vn','.gov.vn','.edu.vn'];
 
 function typeOf (obj) {
 	return {}.toString.call(obj).split(' ')[1].slice(0, -1).toLowerCase();
@@ -101,15 +101,24 @@ function check_valid_line(line){
 	var minimum_words = 6;
 
 	var words = line.split(' ');
+	
+	var vietnamese_words = 0;
+	for(var i=0;i<words.length;i++){
+		for(var j=0;j<words[i].length;j++){
+			if(encodeURIComponent(words[i][j]).length>3){
+				vietnamese_words++;
+				break;
+			}
+		}
+	}
+	if(vietnamese_words < minimum_words) return false;
 
-	var non_empty_words = 0;
-	for(var i=0;i<words.length;i++) if(words[i]!='' && words[i]!='\n') non_empty_words++;
-	if(non_empty_words < minimum_words) return false;
-	else return true;
+	return true;
 }
 
 function check_valid_tag(word){
-	var valid_tag = ['span', 'p', 'div'];
+	var valid_tag = ['span', '/span', 'p', '/p', 'div', '/div', 
+					'em', '/em', 'b', '/b', 'sup', '/sup'];
 
 	for(var i=0;i<valid_tag.length;i++)
 		if(word.substr(0,valid_tag[i].length)==valid_tag[i]) return true;
