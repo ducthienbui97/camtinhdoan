@@ -22,7 +22,7 @@ var phantom = require('phantom');
 
 var coccoc_url = "http://coccoc.com/search#query=";
 var search_depth = 1;
-var accept_website = ['.gov.vn','.edu.vn'];
+var accept_website = ['.vn','.gov.vn','.edu.vn'];
 
 function typeOf (obj) {
 	return {}.toString.call(obj).split(' ')[1].slice(0, -1).toLowerCase();
