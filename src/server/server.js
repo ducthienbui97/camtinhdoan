@@ -9,7 +9,6 @@ var assert = require('assert');
 var app = express();
 var cookieParser = require('cookie-parser');
 
-var hostname = process.env.YOUR_HOST || process.env.HOSTNAME || 'localhost';
 var port = process.env.YOUR_PORT || process.env.PORT || 8888;
 
 var admin_password = "camtinhdoan";
@@ -105,6 +104,6 @@ app.get('/ask1', function(req,res){
 });
 
 
-app.listen(port, hostname, function(){
-	console.log('Server running at http://' + hostname + ':' + port + '/');
+app.listen(port, function(){
+	console.log('Server running at port ' + port);
 }); // start the server and print the status to the console
