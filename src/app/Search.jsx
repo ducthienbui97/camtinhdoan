@@ -8,7 +8,7 @@ export default class Search extends React.Component{
         super(props);
         this.state = {
             done: false,
-            response: '<h1> <p>loading</p>  <p>loading</p> <p>loading</p></h1>'
+            response: '<h1>loading</h1>'
         };
     }
     componentWillMount(){
