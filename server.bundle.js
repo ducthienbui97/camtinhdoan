@@ -1252,7 +1252,7 @@ var assert = __webpack_require__(10);
 var app = express();
 var cookieParser = __webpack_require__(19);
 
-var hostname = process.env.YOUR_HOST || 'localhost';
+var hostname = process.env.YOUR_HOST || process.env.HOSTNAME || 'localhost';
 var port = process.env.YOUR_PORT || process.env.PORT || 8888;
 
 var admin_password = "camtinhdoan";
