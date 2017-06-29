@@ -21,7 +21,7 @@ var async = require('async');
 var phantom = require('phantom');
 
 var coccoc_url = "http://coccoc.com/search#query=%C4%91o%C3%A0n+thanh+ni%C3%AAn";
-var search_depth = 3;
+var search_depth = 1;
 var accept_website = ['doanthanhnien.vn','tapchicongsan.org.vn','tinhdoan.quangbinh.gov.vn',
 					'chogao.edu.vn', 'vungtau.baria-vungtau.gov.vn', 'hpu.edu.vn'];
 
@@ -178,7 +178,7 @@ function extract_information(content_page,keyword,question,callback){
 	}
 
 	var draft = "";
-	var start_article = false;
+	var start_article = false, non_keyword = 0, non_keyword_limit = 15;
 	for(var i=0;i<content.length;i++){
 		if(content[i].split('>').length>1 && //check_valid_tag(content[i].split('>')[0]) && 
 			check_valid_line(content[i].split('>')[1])){
@@ -189,6 +189,11 @@ function extract_information(content_page,keyword,question,callback){
 				draft += content[i].split('>')[1];
 				draft += "</p>\n";
 			}
+
+			if(content[i].split('>')[1].indexOf(keyword)>-1) non_keyword = 0;
+			else non_keyword++;
+			if(non_keyword >= non_keyword_limit) draft = "";
+
 			if(content[i].split('>')[1].indexOf(keyword)>-1 && 
 				check_valid_startend_line(content[i].split('>')[1])){
 				article += draft;
@@ -203,6 +208,11 @@ function extract_information(content_page,keyword,question,callback){
 				draft += content[i];
 				draft += "</p>\n";
 			}
+
+			if(content[i].indexOf(keyword)>-1) non_keyword = 0;
+			else non_keyword++;
+			if(non_keyword >= non_keyword_limit) draft = "";
+			
 			if(content[i].indexOf(keyword)>-1 &&
 				check_valid_startend_line(content[i])){
 				article += draft;
@@ -279,21 +289,21 @@ function find_by_keyword(question,keyword,wlen,callback){
 									appearance = appear;
 								}
 								//
-								// link_cnt++;
-								// if(link_cnt == link_per_page*search_depth) 
+								link_cnt++;
+								if(link_cnt == link_per_page*search_depth) 
 									callback(optimum_content,keyword,wlen,appearance);
 							});
 						});
-						break;
+						// break;
 					}
-					// else{
-					// 	link_cnt++;
-					// 	if(link_cnt == link_per_page*search_depth) callback(optimum_content,keyword,wlen,appearance);
-					// }
+					else{
+						link_cnt++;
+						if(link_cnt == link_per_page*search_depth) callback(optimum_content,keyword,wlen,appearance);
+					}
 				}
+				// else if(i == search_page_lines.length-1 && depth==search_depth+1) callback(optimum_content,keyword,wlen,appearance);
 			}
 		});
-		break;
 	}
 }
 
