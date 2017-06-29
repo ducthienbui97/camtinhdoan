@@ -2,13 +2,13 @@ import queryString from 'query-string';
 import React from 'react';
 import {Grid, Col, Row} from 'react-flexbox-grid';
 import axios from 'axios';
-import {ADiv} from './style.jsx'
+import {BlurDiv} from './Style.jsx'
 export default class Search extends React.Component{
     constructor(props){
         super(props);
         this.state = {
             done: false,
-            response: '<h1> loading </h1>'
+            response: '<h1> <p>loading</p>  <p>loading</p> <p>loading</p></h1>'
         };
     }
     componentWillMount(){
@@ -26,7 +26,7 @@ export default class Search extends React.Component{
             <Grid fluid>
                 <Row center="xs" middle="xs">
                     <Col xs={10} md={10}>
-                        <ADiv dangerouslySetInnerHTML={{ __html: this.state.response }} /> 
+                        <BlurDiv dangerouslySetInnerHTML={{ __html: this.state.response }} /> 
                     </Col>
                 </Row>
             </Grid>  
