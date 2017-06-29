@@ -54,7 +54,7 @@ app.get('/', function(req,res){
 app.post('/ask', function(req,res){
 	action.answer(req.body.question,function(answer){
 		console.log(req.body.question);
-		res.end(answer);
+		res.end('<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head><body>'+answer+'</body></html>');
 	});
 });
 
