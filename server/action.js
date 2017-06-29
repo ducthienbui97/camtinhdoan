@@ -108,6 +108,15 @@ function check_valid_line(line){
 	else return true;
 }
 
+function check_valid_tag(word){
+	var valid_tag = ['span', 'p', 'div'];
+
+	for(var i=0;i<valid_tag.length;i++)
+		if(word.substr(0,valid_tag[i].length)==valid_tag[i]) return true;
+	
+	return false;
+}
+
 function extract_information(content_page,keyword,callback){
 	var article = "";
 
@@ -120,8 +129,7 @@ function extract_information(content_page,keyword,callback){
 	}
 	var draft = "";
 	for(var i=0;i<content.length;i++){
-		if(content[i].split('>').length>1 && 
-			(content[i].split('>')[0][0]=='p' || content[i].split('>')[0].substr(0,4)=='span') && 
+		if(content[i].split('>').length>1 && check_valid_tag(content[i].split('>')[0]) && 
 			check_valid_line(content[i].split('>')[1])){
 			draft += "<p>";
 			draft += content[i].split('>')[1];
