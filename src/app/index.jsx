@@ -1,8 +1,14 @@
 import React from 'react';
 import {render} from 'react-dom';
-class Main extends React.Component{
-	render(){
-		return <h1> Say hi </h1>;
-	}
-}
-render(<Main/> , document.getElementById('app'));
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import Main from './Main.jsx';
+import Search from './Search.jsx';
+render(
+    <BrowserRouter>
+        <Switch>
+            <Route path="/" exact component={Main}/>
+            <Route path="/search" component={Search}/>
+        </Switch>
+    </BrowserRouter>
+
+ , document.getElementById('app'));
