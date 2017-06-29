@@ -97,7 +97,18 @@ function check_accept_website(link){
 	return false;
 }
 
-function extract_information(content_page,callback){
+function check_valid_line(line){
+	var minimum_words = 6;
+
+	var words = line.split(' ');
+
+	var non_empty_words = 0;
+	for(var i=0;i<words.length;i++) if(words[i]!='' && words[i]!='\n') non_empty_words++;
+	if(non_empty_words < minimum_words) return false;
+	else return true;
+}
+
+function extract_information(content_page,keyword,callback){
 	var article = "";
 
 	content_page = content_page.split('<');
@@ -109,16 +120,25 @@ function extract_information(content_page,callback){
 	}
 	var draft = "";
 	for(var i=0;i<content.length;i++){
-		draft += "<p>";
-		if(content[i].split('>').length > 1) draft += content[i].split('>')[1];
-		else draft += content[i];
-		draft += "</p>";
+		if(content[i].split('>').length>1 && 
+			(content[i].split('>')[0][0]=='p' || content[i].split('>')[0].substr(0,4)=='span') && 
+			check_valid_line(content[i].split('>')[1])){
+			draft += "<p>";
+			draft += content[i].split('>')[1];
+			draft += "</p>\n";
+		}
+		else if(content[i].split('>').length==1 && check_valid_line(content[i])){
+			draft += "<p>";
+			draft += content[i];
+			draft += "</p>\n";
+		}
 	}
 
 	callback(draft);
 }
 
-function find_by_keyword(words,callback){
+function find_by_keyword(keyword,callback){
+	var words = keyword.split(' ');
 	var url = coccoc_url;
 	for(var i=0;i<words.length;i++){
 		if(i>0) url += '+';
@@ -132,10 +152,10 @@ function find_by_keyword(words,callback){
 			for(var i=0;i<search_page_lines.length;i++){
 				if(search_page_lines[i].indexOf(search_link_identifier)>-1){
 					var content_link = search_page_lines[i].split('href="')[1].split('"')[0];
-					console.log(content_link);
 					if(check_accept_website(content_link)){
+						console.log(content_link);
 						get_page(content_link,function(content_page){
-							extract_information(content_page,function(article){
+							extract_information(content_page,keyword,function(article){
 								// console.log(article);
 								callback(article);
 							});
@@ -152,7 +172,6 @@ function find_by_keyword(words,callback){
 exports.answer = function(question,callback){
 	if(question == '') callback('nothing');
 	else{
-		var question = question.split(' ');
 		find_by_keyword(question,function(answer_by_keyword){
 			callback(answer_by_keyword);
 		});
