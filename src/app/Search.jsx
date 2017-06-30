@@ -31,7 +31,6 @@ export default class Search extends React.Component{
 	        return (
 	      		 <Grid fluid>
 	                <Row middle="xs">
-
 	                    <Col xsOffset={1}  xs={10} >
 	                        <BlurDiv dangerouslySetInnerHTML={{ __html: this.state.response }} /> 
 	                    </Col>
