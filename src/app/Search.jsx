@@ -8,7 +8,7 @@ export default class Search extends React.Component{
         super(props);
         this.state = {
             done: false,
-            response: '<h1>loading</h1><br></br>  <img src="https://s16.postimg.org/mqlvgq1ph/ezgif.com-gif-maker.gif" alt="Loading" title="Loading" />'
+            response: '<h1>loading</h1><br></br>  <img src="/loading.gif" alt="Loading" title="Loading" />'
         };
     }
     componentWillMount(){
