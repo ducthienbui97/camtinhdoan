@@ -29,6 +29,7 @@ var dictionary = require('./dictionary.js');
 var dictionary_change = require('./dictionary_change.js');
 var keywords;// = require('./keywords.js');
 var keywords_content;// = require('./keywords_content.js');
+var blockwords;// = require('./blockwords.js');
 
 function typeOf (obj) {
 	return {}.toString.call(obj).split(' ')[1].slice(0, -1).toLowerCase();
@@ -307,6 +308,7 @@ function find_by_keyword(question,keyword,wlen,callback){
 		}
 		callback(article,keyword,wlen,appearance,false);
 	}
+	else if(blockwords.indexOf(keyword)>-1) callback("nothing",keyword,wlen,-1,false);
 	else{
 		// console.log(keyword);
 		var words = keyword.split(' ');
@@ -455,7 +457,13 @@ exports.answer = function(question,callback){
 	fs.appendFile('keywords_content.js','];',function(err){
 	if(err) throw err;
 	keywords_content = requireUncached('./keywords_content.js');
-		console.log(keywords);
+	exec("cp blockwords.txt blockwords.js",function(){
+	fs.appendFile('blockwords.js','];',function(err){
+	if(err) throw err;
+	blockwords = requireUncached('./blockwords.js');
+
+		console.log("keywords = "+keywords);
+		console.log("blockwords = "+blockwords);
 
 		if(question == '') callback('nothing');
 		else{
@@ -489,6 +497,7 @@ exports.answer = function(question,callback){
 									word_len = wlen;
 									appearance = appear;
 								}
+								
 								if(answer_by_keyword != "nothing"){
 									result.push(answer_by_keyword);
 
@@ -509,6 +518,13 @@ exports.answer = function(question,callback){
 
 									// console.log(answer_by_keyword);
 									console.log('++++++    '+sub_ques+'    ++++++  '+appearance);
+								}
+								else{
+									if(allow_extend){
+										fs.appendFile('blockwords.txt',',"'+sub_ques+'"', function (err) {
+											if (err) throw err;
+										});
+									}
 								}
 
 								cnt++;
@@ -560,6 +576,8 @@ exports.answer = function(question,callback){
 			});
 		}
 
+	});
+	});
 	});
 	});
 	});
