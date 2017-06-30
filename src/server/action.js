@@ -331,7 +331,9 @@ function remove_common_words(line,callback){
 	line = new_line;
 
 	var remove_words = ['Đoàn','đoàn','ĐOÀN','TNCS','tncs','thanh','niên','Thanh','Niên','THANH','NIÊN',
-						'Hồ','HỒ','hồ','Chí','CHÍ','chí','Minh','MINH','minh'];
+						'Hồ','HỒ','hồ','Chí','CHÍ','chí','Minh','MINH','minh',
+						'các','của','hãy','với','mọi','số','và','về','đối','với','đã','đang','sẽ','là','gì',
+						'để','hoặc','nhưng','mà','thì','ở','rất','cũng','lắm','qua','được','những','em','bạn'];
 	for(var i=0;i<remove_words.length;i++){
 		words = line.split(' ');
 		new_line = '';
