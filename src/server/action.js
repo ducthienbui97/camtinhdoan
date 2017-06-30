@@ -23,7 +23,7 @@ var phantom = require('phantom');
 var coccoc_url = "http://coccoc.com/search#query=%C4%91o%C3%A0n+thanh+ni%C3%AAn";
 var search_depth = 1;
 var accept_website = ['doanthanhnien.vn','tapchicongsan.org.vn','tinhdoan.quangbinh.gov.vn',
-					'chogao.edu.vn', 'vungtau.baria-vungtau.gov.vn', 'hpu.edu.vn'];
+					'chogao.edu.vn', 'vungtau.baria-vungtau.gov.vn', 'hpu.edu.vn', 'wikipedia.org'];
 
 function typeOf (obj) {
 	return {}.toString.call(obj).split(' ')[1].slice(0, -1).toLowerCase();
@@ -366,7 +366,7 @@ exports.answer = function(question,callback){
 					sub_question += words[j];
 					if(j>i){
 						find_by_keyword(new_question,sub_question,j-i+1,function(answer_by_keyword,sub_ques,wlen,appear){
-							// console.log('******    '+sub_ques+'    ******');
+							console.log('******    '+sub_ques+'    ******');
 							// if((wlen>word_len && answer_by_keyword!="nothing") || 
 							// 	(wlen==word_len && optimum_content.length < answer_by_keyword.length)){
 							if(answer_by_keyword != "nothing" && (appearance < appear || 
