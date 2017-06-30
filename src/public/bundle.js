@@ -24697,7 +24697,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.BlurDiv = exports.SearchRow = exports.NoneDecorateLink = undefined;
 
 var _templateObject = _taggedTemplateLiteral(['\n    text-decoration: none;\n'], ['\n    text-decoration: none;\n']),
-    _templateObject2 = _taggedTemplateLiteral(['\n    display:flex;\n    position:realtive;\n    margin:5em auto;\n    width: 90%;\n    flex-direction:row;\n    button {\n      display:block;\n      font:1.2em \'Montserrat Alternates\';\n    }\n    input[type=text] {\n      flex:1;\n      padding:0.6em;\n    }\n    button {\n      padding:0.6em 0.8em;\n      border:none;\n    }\n    button:hover {\n      border:1em;\n    }\n    button:active {\n      background-color:rgb(26, 255, 200);\n      color:white;\n      border:1em;\n    }\n'], ['\n    display:flex;\n    position:realtive;\n    margin:5em auto;\n    width: 90%;\n    flex-direction:row;\n    button {\n      display:block;\n      font:1.2em \'Montserrat Alternates\';\n    }\n    input[type=text] {\n      flex:1;\n      padding:0.6em;\n    }\n    button {\n      padding:0.6em 0.8em;\n      border:none;\n    }\n    button:hover {\n      border:1em;\n    }\n    button:active {\n      background-color:rgb(26, 255, 200);\n      color:white;\n      border:1em;\n    }\n']),
+    _templateObject2 = _taggedTemplateLiteral(['\n    display:flex;\n    position:realtive;\n    margin:5em auto;\n    width: 90%;\n    flex-direction:row;\n    button {\n      background-color:rgb(194, 17, 14);\n      color:rgba(222, 225, 29, 0.5);\n      display:block;\n      font:1.2em \'Montserrat Alternates\';\n      padding:0.6em 0.8em;\n      border:none;\n    }\n    input[type=text] {\n      flex:1;\n      padding:0.6em;\n    }\n    button:hover {\n      background-color:rgba(194, 17, 14, 0.1);\n      color:rgba(222, 225, 29, 0.5);\n      border:1em;\n    }\n    button:active {\n      background-color:rgba(194, 17, 14, 0.1);\n      color:rgba(222, 225, 29, 0.5);\n      border:1em;\n    }\n'], ['\n    display:flex;\n    position:realtive;\n    margin:5em auto;\n    width: 90%;\n    flex-direction:row;\n    button {\n      background-color:rgb(194, 17, 14);\n      color:rgba(222, 225, 29, 0.5);\n      display:block;\n      font:1.2em \'Montserrat Alternates\';\n      padding:0.6em 0.8em;\n      border:none;\n    }\n    input[type=text] {\n      flex:1;\n      padding:0.6em;\n    }\n    button:hover {\n      background-color:rgba(194, 17, 14, 0.1);\n      color:rgba(222, 225, 29, 0.5);\n      border:1em;\n    }\n    button:active {\n      background-color:rgba(194, 17, 14, 0.1);\n      color:rgba(222, 225, 29, 0.5);\n      border:1em;\n    }\n']),
     _templateObject3 = _taggedTemplateLiteral(['\n\tbackground-color: rgba(155,155,155,0.5);\n    border-radius: 5px;\n'], ['\n\tbackground-color: rgba(155,155,155,0.5);\n    border-radius: 5px;\n']);
 
 var _styledComponents = __webpack_require__(170);
@@ -32297,7 +32297,10 @@ var Search = function (_React$Component) {
 
         _this.state = {
             done: false,
-            response: '<h1>loading</h1><br></br>  <img src="/loading.gif" alt="Loading" title="Loading" />'
+            response: '<h1>Loading</h1><br></br>  <img src="/loading.gif" alt="Loading" title="Loading" />',
+            httpClient: _axios2.default.create({
+                timeout: 300000
+            })
         };
         return _this;
     }
@@ -32307,7 +32310,7 @@ var Search = function (_React$Component) {
         value: function componentWillMount() {
             var _this2 = this;
 
-            _axios2.default.post('/ask', {
+            this.state.httpClient.post('/ask', {
                 question: _queryString2.default.parse(this.props.location.search).query
             }).then(function (response) {
                 console.log("done");

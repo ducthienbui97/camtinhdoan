@@ -8,11 +8,14 @@ export default class Search extends React.Component{
         super(props);
         this.state = {
             done: false,
-            response: '<h1>Loading</h1><br></br>  <img src="/loading.gif" alt="Loading" title="Loading" />'
+            response: '<h1>Loading</h1><br></br>  <img src="/loading.gif" alt="Loading" title="Loading" />',
+            httpClient: axios.create({
+              timeout: 300000
+            })
         };
     }
     componentWillMount(){
-        axios.post('/ask',{
+        this.state.httpClient.post('/ask',{
             question: queryString.parse(this.props.location.search).query
         })
         .then((response) => {

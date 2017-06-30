@@ -23,7 +23,7 @@ var phantom = require('phantom');
 var coccoc_url = "http://coccoc.com/search#query=%C4%91o%C3%A0n+thanh+ni%C3%AAn";
 var search_depth = 1;
 var accept_website = ['doanthanhnien.vn','tapchicongsan.org.vn','tinhdoan.quangbinh.gov.vn',
-					'chogao.edu.vn', 'vungtau.baria-vungtau.gov.vn', 'hpu.edu.vn', 'wikipedia.org'];
+					'chogao.edu.vn', 'vungtau.baria-vungtau.gov.vn', 'hpu.edu.vn'];
 
 function typeOf (obj) {
 	return {}.toString.call(obj).split(' ')[1].slice(0, -1).toLowerCase();
@@ -278,9 +278,11 @@ function find_by_keyword(question,keyword,wlen,callback){
 		get_page(new_url,function(search_page){
 			var search_page_lines = search_page.split('\n');
 			var search_link_identifier = '<a data-element-type="title" data-click-type="External" class="log-click" target="_blank" href="http';
+			// console.log(search_page);
 			for(var i=0;i<search_page_lines.length;i++){
 				if(search_page_lines[i].indexOf(search_link_identifier)>-1){
 					var content_link = search_page_lines[i].split('href="')[1].split('"')[0];
+					// console.log(content_link);
 					if(check_accept_website(content_link)){
 						console.log(content_link);
 						get_page(content_link,function(content_page){
@@ -358,6 +360,8 @@ exports.answer = function(question,callback){
 					timer++;
 				}
 			}
+
+			console.log(timer+' *** ');
 
 			for(var i=0;i<words.length;i++){
 				var sub_question = "";
