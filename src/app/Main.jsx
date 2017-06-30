@@ -37,7 +37,7 @@ export default class Main extends React.Component{
                         />
                     </Col>
                     <Col xs={2}>
-                        <Button appearance='primary' onClick = {this.startSearch} style={{ccolor: "red"}}> Generate </Button>
+                        <Button appearance='primary' onClick = {this.startSearch}> Generate </Button>
                     </Col>
                 </SearchRow>
             </Grid>
