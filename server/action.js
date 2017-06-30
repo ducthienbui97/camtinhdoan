@@ -178,7 +178,7 @@ function extract_information(content_page,keyword,question,callback){
 	}
 
 	var draft = "";
-	var start_article = false, short_paragraph = 0, short_paragraph_length = 30, short_paragraph_limit = 15;
+	var start_article = false, short_paragraph = 0, short_paragraph_length = 140, short_paragraph_limit = 7;
 	for(var i=0;i<content.length;i++){
 		if(content[i].split('>').length>1 && //check_valid_tag(content[i].split('>')[0]) && 
 			check_valid_line(content[i].split('>')[1])){
@@ -190,9 +190,10 @@ function extract_information(content_page,keyword,question,callback){
 				draft += "</p>\n";
 			}
 
-			if(content[i].split('>')[1].split(' ').length <= short_paragraph_length) short_paragraph++;
-			else if(content[i].split('>')[1].indexOf(keyword)>-1) short_paragraph = 0;
-			if(short_paragraph >= short_paragraph_limit) draft = "";
+			if(content[i].split('>')[1].length <= short_paragraph_length && 
+				content[i].split('>')[1].indexOf(keyword)==-1) short_paragraph++;
+			else short_paragraph = 0;
+			if(short_paragraph > short_paragraph_limit) draft = "";
 
 			if(content[i].split('>')[1].indexOf(keyword)>-1 && 
 				check_valid_startend_line(content[i].split('>')[1])){
@@ -209,9 +210,10 @@ function extract_information(content_page,keyword,question,callback){
 				draft += "</p>\n";
 			}
 
-			if(content[i].split(' ').length <= short_paragraph_length) short_paragraph++;
-			else if(content[i].indexOf(keyword)>-1) short_paragraph = 0;
-			if(short_paragraph >= short_paragraph_limit) draft = "";
+			if(content[i].length <= short_paragraph_length && 
+				content[i].indexOf(keyword)==-1) short_paragraph++;
+			else short_paragraph = 0;
+			if(short_paragraph > short_paragraph_limit) draft = "";
 			
 			if(content[i].indexOf(keyword)>-1 &&
 				check_valid_startend_line(content[i])){
