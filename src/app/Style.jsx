@@ -34,7 +34,12 @@ const SearchRow = Style(Row)`
     }
 `
 const BlurDiv = Style.div`
+	align: left !important;
 	background-color: rgba(155,155,155,0.5);
     border-radius: 5px;
+    padding: 10px;
+    p{
+    	margin: 0px;
+    }
 `
 export {NoneDecorateLink,SearchRow,BlurDiv}

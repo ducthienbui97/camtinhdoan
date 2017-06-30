@@ -3,12 +3,13 @@ import React from 'react';
 import {Grid, Col, Row} from 'react-flexbox-grid';
 import axios from 'axios';
 import {BlurDiv} from './Style.jsx'
+import Loading from './Loading.jsx' 
 export default class Search extends React.Component{
     constructor(props){
         super(props);
         this.state = {
             done: false,
-            response: '<h1>Loading</h1><br></br>  <img src="/loading.gif" alt="Loading" title="Loading" />',
+            response: '',
             httpClient: axios.create({
               timeout: 300000
             })
@@ -24,15 +25,21 @@ export default class Search extends React.Component{
             this.setState({done: true,response: response.data});
         });
     }
+
     render(){
-        return (
-      		 <Grid fluid>
-                <Row center="xs" middle="xs">
-                    <Col xs={10} md={10}>
-                        <BlurDiv dangerouslySetInnerHTML={{ __html: this.state.response }} /> 
-                    </Col>
-                </Row>
-            </Grid>  
-        );
+    	if(this.state.done){
+	        return (
+	      		 <Grid fluid>
+	                <Row middle="xs">
+	                    <Col xsOffset={1}  xs={10} >
+	                        <BlurDiv dangerouslySetInnerHTML={{ __html: this.state.response }} /> 
+	                    </Col>
+	                </Row>
+	            </Grid>  
+	        );
+	    }
+	    else{
+	    	return <Loading/>
+	    }
     }
 }
