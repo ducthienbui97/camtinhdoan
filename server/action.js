@@ -237,7 +237,7 @@ function extract_information(content_page,keyword,question,callback){
 			appearance = 0;
 			for(var i=0;i<words.length;i++){
 				var seq = '';
-				for(var j=i;j<words.length;j++){
+				for(var j=i;j<Math.min(i+4,words.length);j++){
 					if(j>i) seq += ' ';
 					seq += words[j];
 
@@ -249,7 +249,7 @@ function extract_information(content_page,keyword,question,callback){
 								break;
 							}
 						}
-						if(!have || j==words.length-1){
+						if(!have || j==Math.min(i+4,words.length)-1){
 							if(!have) appearance += (j-i);
 							else appearance += (j-i+1);
 							break;
@@ -351,9 +351,17 @@ exports.answer = function(question,callback){
 			var words = new_question.split(' ');
 			var result = [], word_len = -1, appearance = -1;
 			var cnt = 0, optimum_content = "nothing";
+
+			var timer = 0;
+			for(var i=0;i<words.length;i++){
+				for(var j=i+1;j<Math.min(words.length,i+4);j++){
+					timer++;
+				}
+			}
+
 			for(var i=0;i<words.length;i++){
 				var sub_question = "";
-				for(var j=i;j<words.length;j++){
+				for(var j=i;j<Math.min(i+4,words.length);j++){
 					if(j>i) sub_question += ' ';
 					sub_question += words[j];
 					if(j>i){
@@ -375,7 +383,7 @@ exports.answer = function(question,callback){
 							}
 
 							cnt++;
-							if(cnt*2 == words.length*(words.length-1)){
+							if(cnt == timer){
 								console.log("result = "+result.length);
 								callback(optimum_content);
 							}
