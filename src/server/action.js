@@ -23,7 +23,7 @@ var phantom = require('phantom');
 var coccoc_url = "http://coccoc.com/search#query=%C4%91o%C3%A0n+thanh+ni%C3%AAn";
 var search_depth = 1;
 var accept_website = ['doanthanhnien.vn','tapchicongsan.org.vn','tinhdoan.quangbinh.gov.vn',
-					'chogao.edu.vn', 'vungtau.baria-vungtau.gov.vn', 'hpu.edu.vn'];
+					'chogao.edu.vn', 'vungtau.baria-vungtau.gov.vn', 'hpu.edu.vn', 'wikipedia.org'];
 
 function typeOf (obj) {
 	return {}.toString.call(obj).split(' ')[1].slice(0, -1).toLowerCase();
@@ -187,7 +187,7 @@ function extract_information(content_page,keyword,question,callback){
 			if(start_article){
 				draft += "<p>";
 				draft += content[i].split('>')[1];
-				draft += "</p>\n";
+				draft += "</p>";
 			}
 
 			if(content[i].split('>')[1].length <= short_paragraph_length && 
@@ -207,7 +207,7 @@ function extract_information(content_page,keyword,question,callback){
 			if(start_article){
 				draft += "<p>";
 				draft += content[i];
-				draft += "</p>\n";
+				draft += "</p>";
 			}
 
 			if(content[i].length <= short_paragraph_length && 
@@ -223,15 +223,16 @@ function extract_information(content_page,keyword,question,callback){
 		}
 	}
 
-	var appearance = 0, num_of_words = keyword.split(' ').length, limit = 7;
+	var appearance = 0, num_of_words = keyword.split(' ').length, limit = 5;
 	for(var i=0;i<article.length;i++) if(article.substr(i,keyword.length) == keyword) appearance++;
-	if(appearance*num_of_words < limit) callback("",-1);
+	if(appearance*num_of_words < limit) callback("",-1,-1);
 	else{
+		var keyword_appearance = appearance;
 		appearance = 0;
 		for(var i=0;i<article.length;i++) 
 			if(article.substr(i,'thanh niên'.length) == 'thanh niên' ||
 				article.substr(i,'Đoàn'.length) == 'Đoàn') appearance++;
-		if(appearance < 6) callback("",-1);
+		if(appearance < 6) callback("",-1,-1);
 		else{
 			var words = question.split(' ');
 			appearance = 0;
@@ -257,7 +258,7 @@ function extract_information(content_page,keyword,question,callback){
 					}
 				}
 			}
-			callback(article,appearance);
+			callback(article,appearance,keyword_appearance);
 		}
 	}
 }
@@ -271,6 +272,7 @@ function find_by_keyword(question,keyword,wlen,callback){
 		for(var j=0;j<words[i].length;j++) url += encodeURIComponent(words[i][j]);
 	}
 	
+	var keyword_false = false;
 	var link_per_page = 10, link_cnt = 0;
 	var optimum_content = "nothing", appearance = -1;
 	for(var depth=1;depth<=search_depth;depth++){
@@ -278,20 +280,19 @@ function find_by_keyword(question,keyword,wlen,callback){
 		get_page(new_url,function(search_page){
 			var search_page_lines = search_page.split('\n');
 			var search_link_identifier = '<a data-element-type="title" data-click-type="External" class="log-click" target="_blank" href="http';
-			// console.log(search_page);
 			for(var i=0;i<search_page_lines.length;i++){
 				if(search_page_lines[i].indexOf(search_link_identifier)>-1){
 					var content_link = search_page_lines[i].split('href="')[1].split('"')[0];
-					// console.log(content_link);
-					if(check_accept_website(content_link)){
+					if(!keyword_false && check_accept_website(content_link)){
 						console.log(content_link);
 						get_page(content_link,function(content_page){
-							extract_information(content_page,keyword,question,function(article,appear){
+							extract_information(content_page,keyword,question,function(article,appear,keyword_appearance){
 								if(appear > appearance || 
 									(appear == appearance && article.length > optimum_content.length)){
 									optimum_content = article;
 									appearance = appear;
 								}
+								else if(keyword_appearance <= 0) keyword_false = true;
 								//
 								link_cnt++;
 								if(link_cnt == link_per_page*search_depth) 
@@ -345,6 +346,31 @@ function remove_common_words(line,callback){
 	callback(line);
 }
 
+function mutate(content,callback){
+	callback(content);
+}
+
+function mix_two_paragraph(result,callback){
+	var first_para = result[1].split('</p><p>');
+	var second_para = result[0].split('</p><p>');
+	var content = '';
+	content += first_para[0]+'</p>';
+	for(var i=1;i<second_para.length-1;i++) content += '<p>'+second_para[i]+'</p>';
+	content += '<p>'+first_para[first_para.length-1];
+	callback(content);
+}
+
+function mix_three_paragraph(result,callback){
+	var first_para = result[1].split('</p><p>');
+	var second_para = result[0].split('</p><p>');
+	var third_para = result[2].split('</p><p>');
+	var content = '';
+	content += first_para[0]+'</p>';
+	for(var i=1;i<second_para.length-1;i++) content += '<p>'+second_para[i]+'</p>';
+	content += '<p>'+third_para[third_para.length-1];
+	callback(content);
+}
+
 exports.answer = function(question,callback){
 	if(question == '') callback('nothing');
 	else{
@@ -360,8 +386,6 @@ exports.answer = function(question,callback){
 					timer++;
 				}
 			}
-
-			console.log(timer+' *** ');
 
 			for(var i=0;i<words.length;i++){
 				var sub_question = "";
@@ -389,7 +413,44 @@ exports.answer = function(question,callback){
 							cnt++;
 							if(cnt == timer){
 								console.log("result = "+result.length);
-								callback(optimum_content);
+								if(result.length == 0){
+									callback(optimum_content);
+								}
+								else if(result.length == 1){
+									mutate(optimum_content,function(final_answer){
+										callback(final_answer);
+									});
+								}
+								else if(result.length == 2){
+									for(var i=0;i<result.length;i++){
+										if(result[i] == optimum_content){
+											var temp = result[i];
+											result[i] = result[0];
+											result[0] = temp;
+											break;
+										}
+									}
+									mix_two_paragraph(result,function(content){
+										mutate(content,function(final_answer){
+											callback(final_answer);
+										});
+									});
+								}
+								else{
+									for(var i=0;i<result.length;i++){
+										if(result[i] == optimum_content){
+											var temp = result[i];
+											result[i] = result[0];
+											result[0] = temp;
+											break;
+										}
+									}
+									mix_three_paragraph(result,function(content){
+										mutate(content,function(final_answer){
+											callback(final_answer);
+										});
+									});
+								}
 							}
 						});
 					}
@@ -397,4 +458,16 @@ exports.answer = function(question,callback){
 			}
 		});
 	}
+}
+
+exports.merge = function(first_para,second_para,callback){
+	
+	var first_para = first_para.split('\n');
+	var result = '';
+	console.log(first_para.length);
+	for(var i=0;i<first_para.length;i++){
+		result += "<p>"+first_para[i]+" bla bla bla</p>\n";
+	}
+
+	callback(result);
 }
