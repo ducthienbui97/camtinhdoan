@@ -1,0 +1,1 @@
+module.exports = ['vị cha già dân tộc','vị lãnh tụ kính yêu'];

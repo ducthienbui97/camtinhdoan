@@ -1,0 +1,1 @@
+module.exports = ['Bác Hồ','Hồ Chí Minh'];
