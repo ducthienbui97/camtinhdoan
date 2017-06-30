@@ -1,1 +1,1 @@
-];];];
+module.exports = ["thế hệ trẻ","Bác Hồ","tưởng cách mạng","lý tưởng cách","cách mạng","lý tưởng","đổi tên","tên gọi","vững mạnh","thu hút","cơ sở","cơ sở","xây dựng","tổ chức","cộng sản","sản Việt Nam","Việt Nam","trách nhiệm","đoàn viên","vì sao","vào đoàn","chính thức","bài ca","đồng chí","cơ quan lãnh đạo","quan lãnh đạo","lãnh đạo","cơ quan","thực hiện","thực hiện lý tưởng","đoàn kết","tại sao","thống tổ chức","Hệ thống tổ","Hệ thống tổ chức","mùa hoa","thư ","bí thư ","bí thư","lý tưởng cách mạng","tưởng cách","biển đông","lòng yêu nước","dân tộc","lãnh tụ"];
