@@ -8,7 +8,7 @@ export default class Search extends React.Component{
         super(props);
         this.state = {
             done: false,
-            response: '<h1>loading</h1>'
+            response: '<h1>loading</h1><br></br>  <img src="https://s16.postimg.org/mqlvgq1ph/ezgif.com-gif-maker.gif" alt="Loading" title="Loading" />'
         };
     }
     componentWillMount(){
@@ -23,7 +23,7 @@ export default class Search extends React.Component{
     }
     render(){
         return (
-            <Grid fluid>
+      		 <Grid fluid>
                 <Row center="xs" middle="xs">
                     <Col xs={10} md={10}>
                         <BlurDiv dangerouslySetInnerHTML={{ __html: this.state.response }} /> 
