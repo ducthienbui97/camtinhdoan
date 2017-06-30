@@ -20,16 +20,17 @@ var assert = require('assert');
 var async = require('async');
 var phantom = require('phantom');
 
-var coccoc_url = "http://coccoc.com/search#query=%C4%91o%C3%A0n+thanh+ni%C3%AAn";
-var search_depth = 1;
+var coccoc_url = "http://coccoc.com/search#query=";
+var search_depth = 3;
 var accept_website = ['doanthanhnien.vn','tapchicongsan.org.vn','tinhdoan.quangbinh.gov.vn',
-					'chogao.edu.vn', 'vungtau.baria-vungtau.gov.vn', 'hpu.edu.vn', 'wikipedia.org'];
+					'chogao.edu.vn', 'vungtau.baria-vungtau.gov.vn', 'hpu.edu.vn', 'wikipedia.org',
+					'baobariavungtau.com.vn','tienphong.vn','trandaiquangvn.org'];
 
 var dictionary = require('./dictionary.js');
 var dictionary_change = require('./dictionary_change.js');
-var keywords;// = require('./keywords.js');
-var keywords_content;// = require('./keywords_content.js');
-var blockwords;// = require('./blockwords.js');
+var keywords = require('./keywords.js');
+var keywords_content = require('./keywords_content.js');
+var blockwords = require('./blockwords.js');
 
 function typeOf (obj) {
 	return {}.toString.call(obj).split(' ')[1].slice(0, -1).toLowerCase();
@@ -197,9 +198,8 @@ function extract_information(content_page,keyword,question,callback){
 	var draft = "";
 	var start_article = false, short_paragraph = 0, short_paragraph_length = 140, short_paragraph_limit = 7;
 	for(var i=0;i<content.length;i++){
-		if(content[i].split('>').length>1 && //check_valid_tag(content[i].split('>')[0]) && 
-			check_valid_line(content[i].split('>')[1])){
-			if(content[i].split('>')[1].indexOf(keyword)>-1 && 
+		if(content[i].split('>').length>1 && check_valid_line(content[i].split('>')[1])){
+			if(content[i].toLowerCase().split('>')[1].indexOf(keyword.toLowerCase())>-1 && 
 				check_valid_startend_line(content[i].split('>')[1])) start_article = true;
 			if(start_article){
 				draft += "<p>";
@@ -208,18 +208,18 @@ function extract_information(content_page,keyword,question,callback){
 			}
 
 			if(content[i].split('>')[1].length <= short_paragraph_length && 
-				content[i].split('>')[1].indexOf(keyword)==-1) short_paragraph++;
+				content[i].toLowerCase().split('>')[1].indexOf(keyword.toLowerCase())==-1) short_paragraph++;
 			else short_paragraph = 0;
 			if(short_paragraph > short_paragraph_limit) draft = "";
 
-			if(content[i].split('>')[1].indexOf(keyword)>-1 && 
+			if(content[i].toLowerCase().split('>')[1].indexOf(keyword.toLowerCase())>-1 && 
 				check_valid_startend_line(content[i].split('>')[1])){
 				article += draft;
 				draft = "";
 			}
 		}
 		else if(content[i].split('>').length==1 && check_valid_line(content[i])){
-			if(content[i].indexOf(keyword)>-1 && 
+			if(content[i].toLowerCase().indexOf(keyword.toLowerCase())>-1 && 
 				check_valid_startend_line(content[i])) start_article = true;
 			if(start_article){
 				draft += "<p>";
@@ -228,11 +228,11 @@ function extract_information(content_page,keyword,question,callback){
 			}
 
 			if(content[i].length <= short_paragraph_length && 
-				content[i].indexOf(keyword)==-1) short_paragraph++;
+				content[i].toLowerCase().indexOf(keyword.toLowerCase())==-1) short_paragraph++;
 			else short_paragraph = 0;
 			if(short_paragraph > short_paragraph_limit) draft = "";
 			
-			if(content[i].indexOf(keyword)>-1 &&
+			if(content[i].toLowerCase().indexOf(keyword)>-1 &&
 				check_valid_startend_line(content[i])){
 				article += draft;
 				draft = "";
@@ -241,7 +241,7 @@ function extract_information(content_page,keyword,question,callback){
 	}
 
 	var appearance = 0, num_of_words = keyword.split(' ').length, limit = 5;
-	for(var i=0;i<article.length;i++) if(article.substr(i,keyword.length) == keyword) appearance++;
+	for(var i=0;i<article.length;i++) if(article.substr(i,keyword.length).toLowerCase() == keyword.toLowerCase()) appearance++;
 	if(appearance*num_of_words < limit) callback("",-1,-1);
 	else{
 		var keyword_appearance = appearance;
@@ -249,25 +249,25 @@ function extract_information(content_page,keyword,question,callback){
 		for(var i=0;i<article.length;i++) 
 			if(article.substr(i,'thanh niên'.length) == 'thanh niên' ||
 				article.substr(i,'Đoàn'.length) == 'Đoàn') appearance++;
-		if(appearance < 6) callback("",-1,-1);
+		if(appearance < 2) callback("",-1,-1);
 		else{
 			var words = question.split(' ');
 			appearance = 0;
 			for(var i=0;i<words.length;i++){
 				var seq = '';
-				for(var j=i;j<Math.min(i+3,words.length);j++){
+				for(var j=i;j<Math.min(i+4,words.length);j++){
 					if(j>i) seq += ' ';
 					seq += words[j];
 
 					if(j>i){
 						var have = false;
 						for(var k=0;k<article.length;k++){
-							if(article.substr(k,seq.length) == seq){
+							if(article.substr(k,seq.length).toLowerCase() == seq.toLowerCase()){
 								have = true;
 								break;
 							}
 						}
-						if(!have || j==Math.min(i+3,words.length)-1){
+						if(!have || j==Math.min(i+4,words.length)-1){
 							if(!have) appearance += (j-i);
 							else appearance += (j-i+1);
 							break;
@@ -286,19 +286,19 @@ function find_by_keyword(question,keyword,wlen,callback){
 		var appearance = 0, article = keywords_content[keywords.indexOf(keyword)];
 		for(var i=0;i<words.length;i++){
 			var seq = '';
-			for(var j=i;j<Math.min(i+3,words.length);j++){
+			for(var j=i;j<Math.min(i+4,words.length);j++){
 				if(j>i) seq += ' ';
 				seq += words[j];
 
 				if(j>i){
 					var have = false;
 					for(var k=0;k<article.length;k++){
-						if(article.substr(k,seq.length) == seq){
+						if(article.substr(k,seq.length).toLowerCase() == seq.toLowerCase()){
 							have = true;
 							break;
 						}
 					}
-					if(!have || j==Math.min(i+3,words.length)-1){
+					if(!have || j==Math.min(i+4,words.length)-1){
 						if(!have) appearance += (j-i);
 						else appearance += (j-i+1);
 						break;
@@ -308,55 +308,59 @@ function find_by_keyword(question,keyword,wlen,callback){
 		}
 		callback(article,keyword,wlen,appearance,false);
 	}
-	else if(blockwords.indexOf(keyword)>-1) callback("nothing",keyword,wlen,-1,false);
-	else{
-		// console.log(keyword);
-		var words = keyword.split(' ');
-		var url = coccoc_url;
-		for(var i=0;i<words.length;i++){
-			url += '+';
-			for(var j=0;j<words[i].length;j++) url += encodeURIComponent(words[i][j]);
-		}
+
+	else callback("nothing",keyword,wlen,-1,false);
+
+	// else if(blockwords.indexOf(keyword)>-1) callback("nothing",keyword,wlen,-1,false);
+	// else{
+	// 	// console.log(keyword);
+	// 	var words = keyword.split(' ');
+	// 	var url = coccoc_url;
+	// 	for(var i=0;i<words.length;i++){
+	// 		for(var j=0;j<words[i].length;j++) url += encodeURIComponent(words[i][j]);
+	// 		url += '+';
+	// 	}
+	// 	url += "%C4%91o%C3%A0n+thanh+ni%C3%AAn";
 		
-		var keyword_false = false;
-		var link_per_page = 10, link_cnt = 0;
-		var optimum_content = "nothing", appearance = -1;
-		for(var depth=1;depth<=search_depth;depth++){
-			var new_url = (depth > 1) ? (url+'&page='+depth) : url;
-			get_page(new_url,function(search_page){
-				var search_page_lines = search_page.split('\n');
-				var search_link_identifier = '<a data-element-type="title" data-click-type="External" class="log-click" target="_blank" href="http';
-				for(var i=0;i<search_page_lines.length;i++){
-					if(search_page_lines[i].indexOf(search_link_identifier)>-1){
-						var content_link = search_page_lines[i].split('href="')[1].split('"')[0];
-						if(!keyword_false && check_accept_website(content_link)){
-							console.log(content_link);
-							get_page(content_link,function(content_page){
-								extract_information(content_page,keyword,question,function(article,appear,keyword_appearance){
-									if(appear > appearance || 
-										(appear == appearance && article.length > optimum_content.length)){
-										optimum_content = article;
-										appearance = appear;
-									}
-									else if(keyword_appearance <= 0) keyword_false = true;
-									//
-									link_cnt++;
-									if(link_cnt == link_per_page*search_depth) 
-										callback(optimum_content,keyword,wlen,appearance,true);
-								});
-							});
-							// break;
-						}
-						else{
-							link_cnt++;
-							if(link_cnt == link_per_page*search_depth) callback(optimum_content,keyword,wlen,appearance,true);
-						}
-					}
-					// else if(i == search_page_lines.length-1 && depth==search_depth+1) callback(optimum_content,keyword,wlen,appearance);
-				}
-			});
-		}
-	}
+	// 	var keyword_false = false;
+	// 	var link_per_page = 10, link_cnt = 0;
+	// 	var optimum_content = "nothing", appearance = -1;
+	// 	for(var depth=1;depth<=search_depth;depth++){
+	// 		var new_url = (depth > 1) ? (url+'&page='+depth) : url;
+	// 		get_page(new_url,function(search_page){
+	// 			var search_page_lines = search_page.split('\n');
+	// 			var search_link_identifier = '<a data-element-type="title" data-click-type="External" class="log-click" target="_blank" href="http';
+	// 			for(var i=0;i<search_page_lines.length;i++){
+	// 				if(search_page_lines[i].indexOf(search_link_identifier)>-1){
+	// 					var content_link = search_page_lines[i].split('href="')[1].split('"')[0];
+	// 					if(!keyword_false && check_accept_website(content_link)){
+	// 						console.log(content_link);
+	// 						get_page(content_link,function(content_page){
+	// 							extract_information(content_page,keyword,question,function(article,appear,keyword_appearance){
+	// 								if(appear > appearance || 
+	// 									(appear == appearance && article.length > optimum_content.length)){
+	// 									optimum_content = article;
+	// 									appearance = appear;
+	// 								}
+	// 								// else if(keyword_appearance <= 0) keyword_false = true;
+	// 								//
+	// 								link_cnt++;
+	// 								if(link_cnt == link_per_page*search_depth) 
+	// 									callback(optimum_content,keyword,wlen,appearance,true);
+	// 							});
+	// 						});
+	// 						// break;
+	// 					}
+	// 					else{
+	// 						link_cnt++;
+	// 						if(link_cnt == link_per_page*search_depth) callback(optimum_content,keyword,wlen,appearance,true);
+	// 					}
+	// 				}
+	// 				// else if(i == search_page_lines.length-1 && depth==search_depth+1) callback(optimum_content,keyword,wlen,appearance);
+	// 			}
+	// 		});
+	// 	}
+	// }
 }
 
 function remove_common_words(line,callback){
@@ -369,17 +373,7 @@ function remove_common_words(line,callback){
 		line = new_line;
 	}
 
-	words = line.split(' '); new_line = '';
-	for(var i=0;i<words.length;i++) 
-		if(words[i]!=''){
-			if(new_line!='') new_line += ' ';
-			new_line += words[i];
-		}
-	line = new_line;
-
-	var remove_words = ['Đoàn','đoàn','ĐOÀN','TNCS','tncs','thanh','niên','Thanh','Niên','THANH','NIÊN',
-						'các','của','hãy','với','mọi','số','và','về','đối','với','đã','đang','sẽ','là','gì',
-						'để','hoặc','nhưng','mà','thì','ở','rất','cũng','lắm','qua','được','những','em','bạn'];
+	var remove_words = ['TNCS','tncs','thanh','niên','Thanh','Niên','THANH','NIÊN'];
 	for(var i=0;i<remove_words.length;i++){
 		words = line.split(' ');
 		new_line = '';
@@ -390,6 +384,15 @@ function remove_common_words(line,callback){
 			}
 		line = new_line;
 	}
+
+	words = line.split(' ');
+	new_line = '';
+	for(var j=0;j<words.length;j++)
+		if(words[j]!=''){
+			if(new_line!='') new_line += ' ';
+			new_line += words[j];
+		}
+	line = new_line;
 
 	callback(line);
 }
@@ -449,139 +452,141 @@ function requireUncached(module){
 }
 
 exports.answer = function(question,callback){
-	exec("cp keywords.txt keywords.js",function(){
-	fs.appendFile('keywords.js','];',function(err){
-	if (err) throw err;
-	keywords = requireUncached('./keywords.js');
-	exec("cp keywords_content.txt keywords_content.js",function(){
-	fs.appendFile('keywords_content.js','];',function(err){
-	if(err) throw err;
-	keywords_content = requireUncached('./keywords_content.js');
-	exec("cp blockwords.txt blockwords.js",function(){
-	fs.appendFile('blockwords.js','];',function(err){
-	if(err) throw err;
-	blockwords = requireUncached('./blockwords.js');
+	// exec("cp keywords.txt keywords.js",function(){
+	// fs.appendFile('keywords.js','];',function(err){
+	// if (err) throw err;
+	// keywords = requireUncached('./keywords.js');
+	// exec("cp keywords_content.txt keywords_content.js",function(){
+	// fs.appendFile('keywords_content.js','];',function(err){
+	// if(err) throw err;
+	// keywords_content = requireUncached('./keywords_content.js');
+	// exec("cp blockwords.txt blockwords.js",function(){
+	// fs.appendFile('blockwords.js','];',function(err){
+	// if(err) throw err;
+	// blockwords = requireUncached('./blockwords.js');
 
 		console.log("keywords = "+keywords);
-		console.log("blockwords = "+blockwords);
+		// console.log("blockwords = "+blockwords);
 
 		if(question == '') callback('nothing');
 		else{
 			remove_common_words(question,function(new_question){
 				console.log(new_question);
 				var words = new_question.split(' ');
-				var result = [], word_len = -1, appearance = -1;
+				var result = [], word_len = 1, appearance = -1;
 				var cnt = 0, optimum_content = "nothing";
 
-				var timer = 0;
-				for(var i=0;i<words.length;i++){
-					for(var j=i+1;j<Math.min(words.length,i+3);j++){
-						timer++;
+				if(words.length <= 1) callback("nothing");
+				else{
+					var timer = 0;
+					for(var i=0;i<words.length;i++){
+						for(var j=i+1;j<Math.min(words.length,i+4);j++){
+							timer++;
+						}
 					}
-				}
 
-				for(var i=0;i<words.length;i++){
-					var sub_question = "";
-					for(var j=i;j<Math.min(i+3,words.length);j++){
-						if(j>i) sub_question += ' ';
-						sub_question += words[j];
-						if(j>i){
-							find_by_keyword(new_question,sub_question,j-i+1,function(answer_by_keyword,sub_ques,wlen,appear,allow_extend){
-								console.log('******    '+sub_ques+'    ******');
-								// if((wlen>word_len && answer_by_keyword!="nothing") || 
-								// 	(wlen==word_len && optimum_content.length < answer_by_keyword.length)){
-								if(answer_by_keyword != "nothing" && (appearance < appear || 
-									(appearance == appear &&
-									word_len*optimum_content.length < wlen*answer_by_keyword.length))){
-									optimum_content = answer_by_keyword;
-									word_len = wlen;
-									appearance = appear;
-								}
-								
-								if(answer_by_keyword != "nothing"){
-									result.push(answer_by_keyword);
+					for(var i=0;i<words.length;i++){
+						var sub_question = "";
+						for(var j=i;j<Math.min(i+4,words.length);j++){
+							if(j>i) sub_question += ' ';
+							sub_question += words[j];
+							if(j>i){
+								find_by_keyword(new_question,sub_question,j-i+1,function(answer_by_keyword,sub_ques,wlen,appear,allow_extend){
+									console.log('******    '+sub_ques+'    ******');
+									// if((wlen>word_len && answer_by_keyword!="nothing") || 
+									// 	(wlen==word_len && optimum_content.length < answer_by_keyword.length)){
+									if(answer_by_keyword != "nothing" && (appearance < appear || 
+										(appearance == appear && word_len < wlen) ||
+										appearance == appear && word_len == wlen && optimum_content.length < answer_by_keyword.length)){
+										optimum_content = answer_by_keyword;
+										word_len = wlen;
+										appearance = appear;
+									}
+									
+									if(answer_by_keyword != "nothing"){
+										result.push(answer_by_keyword);
 
-									if(allow_extend){
-										fs.appendFile('keywords.txt',',"'+sub_ques+'"', function (err) {
-											if (err) throw err;
-											var throw_quote = answer_by_keyword.split('"'), new_answer = '';
-											for(var k=0;k<throw_quote.length;k++) new_answer += throw_quote[k];
-											throw_quote = new_answer.split('\n'); new_answer = '';
-											for(var k=0;k<throw_quote.length;k++) new_answer += throw_quote[k];
-											throw_quote = new_answer.split('	'); new_answer = '';
-											for(var k=0;k<throw_quote.length;k++) new_answer += throw_quote[k];
-											fs.appendFile('keywords_content.txt',',"'+new_answer+'"', function (err) {
+										if(allow_extend){
+											fs.appendFile('keywords.txt',',"'+sub_ques+'"', function (err) {
 												if (err) throw err;
+												var throw_quote = answer_by_keyword.split('"'), new_answer = '';
+												for(var k=0;k<throw_quote.length;k++) new_answer += throw_quote[k];
+												throw_quote = new_answer.split('\n'); new_answer = '';
+												for(var k=0;k<throw_quote.length;k++) new_answer += throw_quote[k];
+												throw_quote = new_answer.split('	'); new_answer = '';
+												for(var k=0;k<throw_quote.length;k++) new_answer += throw_quote[k];
+												fs.appendFile('keywords_content.txt',',"'+new_answer+'"', function (err) {
+													if (err) throw err;
+												});
 											});
-										});
-									}
-
-									// console.log(answer_by_keyword);
-									console.log('++++++    '+sub_ques+'    ++++++  '+appearance);
-								}
-								else{
-									if(allow_extend){
-										fs.appendFile('blockwords.txt',',"'+sub_ques+'"', function (err) {
-											if (err) throw err;
-										});
-									}
-								}
-
-								cnt++;
-								if(cnt == timer){
-									console.log("result = "+result.length);
-									if(result.length == 0){
-										callback(optimum_content);
-									}
-									else if(result.length == 1){
-										mutate(optimum_content,function(final_answer){
-											callback(final_answer);
-										});
-									}
-									else if(result.length == 2){
-										for(var i=0;i<result.length;i++){
-											if(result[i] == optimum_content){
-												var temp = result[i];
-												result[i] = result[0];
-												result[0] = temp;
-												break;
-											}
 										}
-										mix_two_paragraph(result,function(content){
-											mutate(content,function(final_answer){
+
+										// console.log(answer_by_keyword);
+										console.log('++++++    '+sub_ques+'    ++++++  '+appearance);
+									}
+									// else{
+									// 	if(allow_extend){
+									// 		fs.appendFile('blockwords.txt',',"'+sub_ques+'"', function (err) {
+									// 			if (err) throw err;
+									// 		});
+									// 	}
+									// }
+
+									cnt++;
+									if(cnt == timer){
+										console.log("result = "+result.length);
+										if(result.length == 0)
+											callback("<p>ĐẢNG CỘNG SẢN VIỆT NAM QUANG VINH MUÔN NĂM !!!</p>"+keywords_content[Math.floor(Math.random() * keywords_content.length)]);
+										else if(result.length == 1){
+											mutate(optimum_content,function(final_answer){
 												callback(final_answer);
 											});
-										});
-									}
-									else{
-										for(var i=0;i<result.length;i++){
-											if(result[i] == optimum_content){
-												var temp = result[i];
-												result[i] = result[0];
-												result[0] = temp;
-												break;
-											}
 										}
-										mix_three_paragraph(result,function(content){
-											mutate(content,function(final_answer){
-												callback(final_answer);
+										else if(result.length == 2){
+											for(var i=0;i<result.length;i++){
+												if(result[i] == optimum_content){
+													var temp = result[i];
+													result[i] = result[0];
+													result[0] = temp;
+													break;
+												}
+											}
+											mix_two_paragraph(result,function(content){
+												mutate(content,function(final_answer){
+													callback(final_answer);
+												});
 											});
-										});
+										}
+										else{
+											for(var i=0;i<result.length;i++){
+												if(result[i] == optimum_content){
+													var temp = result[i];
+													result[i] = result[0];
+													result[0] = temp;
+													break;
+												}
+											}
+											mix_three_paragraph(result,function(content){
+												mutate(content,function(final_answer){
+													callback(final_answer);
+												});
+											});
+										}
 									}
-								}
-							});
+								});
+							}
 						}
 					}
 				}
 			});
 		}
 
-	});
-	});
-	});
-	});
-	});
-	});
+	// });
+	// });
+	// });
+	// });
+	// });
+	// });
 }
 
 exports.merge = function(first_para,second_para,callback){
