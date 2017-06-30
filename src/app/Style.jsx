@@ -11,23 +11,25 @@ const SearchRow = Style(Row)`
     width: 90%;
     flex-direction:row;
     button {
+      background-color:rgb(194, 17, 14);
+      color:rgba(222, 225, 29, 0.5);
       display:block;
       font:1.2em 'Montserrat Alternates';
+      padding:0.6em 0.8em;
+      border:none;
     }
     input[type=text] {
       flex:1;
       padding:0.6em;
     }
-    button {
-      padding:0.6em 0.8em;
-      border:none;
-    }
     button:hover {
+      background-color:rgba(194, 17, 14, 0.1);
+      color:rgba(222, 225, 29, 0.5);
       border:1em;
     }
     button:active {
-      background-color:rgb(26, 255, 200);
-      color:white;
+      background-color:rgba(194, 17, 14, 0.1);
+      color:rgba(222, 225, 29, 0.5);
       border:1em;
     }
 `
