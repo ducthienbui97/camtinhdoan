@@ -9,10 +9,9 @@ var assert = require('assert');
 var app = express();
 var cookieParser = require('cookie-parser');
 
-var hostname = "localhost";
-var port = 8888;
+var port = process.env.YOUR_PORT || process.env.PORT || 8888;
 
-var admin_password = "camtinhdoan";
+var admin_password = "???";
 
 var action = require('./action.js');
 
@@ -26,34 +25,23 @@ function check_invalid_input(req,res,next){
 }
 
 app.use(check_invalid_input);
-
 app.use(morgan('dev')); // to print action to console in a pretty form
-
 app.use(bodyParser());
 app.use(bodyParser.json()); // if request body has json data, 
 // then convert it to a simpler form to use in javascript
 
 app.use(cookieParser()); // secret key
+app.use(express.static('./src/public'));
 
-function givefile(req,res,fileUrl){
-	var filePath = path.resolve('.'+fileUrl);
-	var fileExt = path.extname(filePath);
-
-	fs.exists(filePath, function(exists){
-		if(extensions.indexOf(fileExt)==-1) res.redirect("/");
-		else if(!exists) res.redirect("/");
-		else if(forbid.indexOf(fileUrl)!=-1) res.redirect("/");
-		else fs.createReadStream(filePath).pipe(res);
-	});
-}
-
-app.get('/', function(req,res){
-	givefile(req,res,'/index.html');
+app.get('*', function(req,res){
+	res.sendFile('index.html',{root:'./src/public'});
 });
 
 app.post('/ask', function(req,res){
+	console.log(req.body);
 	action.answer(req.body.question,function(answer){
-		res.end('<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n</head>\n<body>\n'+answer+'</body>\n</html>\n');
+		res.send(answer);
+		//res.end('<!DOCTYPE html>\n<html>\n<head>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n</head>\n<body>\n'+answer+'</body>\n</html>\n');
 	});
 });
 
@@ -115,10 +103,7 @@ app.get('/ask1', function(req,res){
 	res.end(s);
 });
 
-app.get('/*', function(req,res){
-	givefile(req,res,req.url);
-});
 
-app.listen(port, hostname, function(){
-	console.log('Server running at http://' + hostname + ':' + port + '/');
+app.listen(port, function(){
+	console.log('Server running at port ' + port);
 }); // start the server and print the status to the console
