@@ -1,9 +1,9 @@
 # camtinhdoan
 
-## Build app
+## Build app (front end)
 ``` npm run build ```
 
-## Run app (after built)
+## Run app (back end)
 ``` npm run start ```
 
 ## Build and run

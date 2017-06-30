@@ -3,12 +3,10 @@
   "version": "1.0.0",
   "description": "Cam Tinh Doan",
   "scripts": {
-    "start": "node server.bundle.js",
+    "start": "node src/server/server.js",
     "start:dev": "webpack-dev-server --inline --content-base public/ --history-api-fallback",
-    "start:prod": "npm run build && node server.bundle.js",
-    "build:client": "webpack",
-    "build:server": "webpack --config webpack.server.config.js",
-    "build": "npm run build:client && npm run build:server",
+    "start:prod": "npm run build && node src/server/server.js",
+    "build": "webpack",
     "babel-node": "babel-node"
   },
   "license": "MIT",
