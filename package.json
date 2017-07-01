@@ -1,13 +1,17 @@
 {
   "name": "CamTinhDoan",
   "version": "1.0.0",
-  "description": "Cam Tinh Doan",
+  "description": "Funny app to generate the answer for HCM Youth Union related questions. The app is made for education purpose only",
   "scripts": {
     "start": "node src/server/server.js",
     "start:dev": "webpack-dev-server --inline --content-base public/ --history-api-fallback",
     "start:prod": "npm run build && node src/server/server.js",
     "build": "webpack",
     "babel-node": "babel-node"
+  },
+  "repository" :{ 
+    "type" : "git", 
+    "url" : "https://github.com/ducthienbui97/camtinhdoan"
   },
   "license": "MIT",
   "dependencies": {
