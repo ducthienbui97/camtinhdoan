@@ -281,9 +281,9 @@ function extract_information(content_page,keyword,question,callback){
 }
 
 function find_by_keyword(question,keyword,wlen,callback){
-	if(keywords.indexOf(keyword)>-1){
+	if(keywords.indexOf(keyword.toLowerCase())>-1){
 		var words = question.split(' ');
-		var appearance = 0, article = keywords_content[keywords.indexOf(keyword)];
+		var appearance = 0, article = keywords_content[keywords.indexOf(keyword.toLowerCase())];
 		for(var i=0;i<words.length;i++){
 			var seq = '';
 			for(var j=i;j<Math.min(i+4,words.length);j++){
@@ -507,7 +507,7 @@ exports.answer = function(question,callback){
 										result.push(answer_by_keyword);
 
 										if(allow_extend){
-											fs.appendFile('keywords.txt',',"'+sub_ques+'"', function (err) {
+											fs.appendFile('keywords.txt',',"'+sub_ques.toLowerCase()+'"', function (err) {
 												if (err) throw err;
 												var throw_quote = answer_by_keyword.split('"'), new_answer = '';
 												for(var k=0;k<throw_quote.length;k++) new_answer += throw_quote[k];
